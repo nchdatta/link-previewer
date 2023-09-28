@@ -1,40 +1,38 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import cheerio from 'cheerio';
+
+const initialState = {
+    title: "",
+    description: "",
+    image: "",
+};
 
 const LinkPreview = () => {
     const [url, setUrl] = useState('');
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [image, setImage] = useState('');
+    const [linkPreview, setLinkPreview] = useState(initialState);
+    const [isLoading, setIsLoading] = useState(false);
+
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get(`/get-link-preview?url=${url}`);
-                const html = response.data;
-                const $ = cheerio.load(html);
-
-                const metaTitle = $('meta[property="og:title"]').attr('content');
-                const metaDescription = $('meta[property="og:description"]').attr('content');
-                const metaImage = $('meta[property="og:image"]').attr('content');
-
-                setTitle(metaTitle || '');
-                setDescription(metaDescription || '');
-                setImage(metaImage || '');
+                setIsLoading(true);
+                const response = await axios.get(`https://link-previewer-api.onrender.com/link-preview?url=${url}`);
+                setLinkPreview(response.data)
             } catch (error) {
                 console.error(error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         if (url) {
             fetchData();
         } else {
-            setTitle('');
-            setDescription('');
-            setImage('');
+            setLinkPreview(initialState);
         }
     }, [url]);
+
 
     return (
         <div>
@@ -44,9 +42,18 @@ const LinkPreview = () => {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
             />
-            <h2>{title}</h2>
-            <p>{description}</p>
-            {image ? <img src={image} alt="Link Preview" /> : ""}
+
+            {isLoading ?
+                <div className='loader_wrapper'>
+                    <span className="loader"></span>
+                </div>
+                :
+                <>
+                    <h2>{linkPreview.title}</h2>
+                    <p>{linkPreview.description}</p>
+                    {linkPreview.image ? <img src={linkPreview.image} alt="Link Preview" /> : ""}
+                </>
+            }
         </div>
     );
 };
