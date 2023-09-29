@@ -17,7 +17,7 @@ const LinkPreview = () => {
         const fetchData = async () => {
             try {
                 setIsLoading(true);
-                const response = await axios.get(`https://link-previewer-api.onrender.com/link-preview?url=${url}`);
+                const response = await axios.get(`https://link-previewer-next.vercel.app/api/link-preview?url=${url}`);
                 setLinkPreview(response.data)
             } catch (error) {
                 console.error(error);
@@ -45,7 +45,7 @@ const LinkPreview = () => {
 
             {isLoading ?
                 <div className='loader_wrapper'>
-                    <span className="loader"></span>
+                    <div className="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
                 </div>
                 :
                 <>
